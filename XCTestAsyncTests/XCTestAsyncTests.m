@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "XCTestAsync.h"
 
 @interface XCTestAsyncTests : XCTestCase
 
@@ -26,9 +27,13 @@
     [super tearDown];
 }
 
-- (void)testExample
+- (void)testTimeoutAsync
 {
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+    XCAsyncFailAfter(3, @"\"%s\" timed out", __PRETTY_FUNCTION__);
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+        XCAsyncSuccess();
+    });
 }
 
 @end

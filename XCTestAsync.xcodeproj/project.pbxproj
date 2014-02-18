@@ -9,13 +9,14 @@
 /* Begin PBXBuildFile section */
 		699743B618B1BE9E00005202 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 699743B518B1BE9E00005202 /* Foundation.framework */; };
 		699743BB18B1BE9E00005202 /* XCTestAsync.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 699743BA18B1BE9E00005202 /* XCTestAsync.h */; };
-		699743BD18B1BE9E00005202 /* XCTestAsync.m in Sources */ = {isa = PBXBuildFile; fileRef = 699743BC18B1BE9E00005202 /* XCTestAsync.m */; };
+		699743BD18B1BE9E00005202 /* XCTestAsync.m in Sources */ = {isa = PBXBuildFile; fileRef = 699743BC18B1BE9E00005202 /* XCTestAsync.m */; settings = {COMPILER_FLAGS = "-fobjc-arc-exceptions"; }; };
 		699743C418B1BE9E00005202 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 699743C318B1BE9E00005202 /* XCTest.framework */; };
 		699743C518B1BE9E00005202 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 699743B518B1BE9E00005202 /* Foundation.framework */; };
 		699743C718B1BE9E00005202 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 699743C618B1BE9E00005202 /* UIKit.framework */; };
 		699743CA18B1BE9E00005202 /* libXCTestAsync.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 699743B218B1BE9E00005202 /* libXCTestAsync.a */; };
 		699743D018B1BE9E00005202 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 699743CE18B1BE9E00005202 /* InfoPlist.strings */; };
 		699743D218B1BE9E00005202 /* XCTestAsyncTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 699743D118B1BE9E00005202 /* XCTestAsyncTests.m */; };
+		699743DB18B1D0CE00005202 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 699743C318B1BE9E00005202 /* XCTest.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				699743DB18B1D0CE00005202 /* XCTest.framework in Frameworks */,
 				699743B618B1BE9E00005202 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -286,7 +288,6 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -318,7 +319,6 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -332,6 +332,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DSTROOT = /tmp/XCTestAsync.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "XCTestAsync/XCTestAsync-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
@@ -344,6 +348,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DSTROOT = /tmp/XCTestAsync.dst;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "XCTestAsync/XCTestAsync-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
@@ -368,6 +376,10 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "XCTestAsyncTests/XCTestAsyncTests-Info.plist";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -385,6 +397,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "XCTestAsync/XCTestAsync-Prefix.pch";
 				INFOPLIST_FILE = "XCTestAsyncTests/XCTestAsyncTests-Info.plist";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = xctest;
 			};
@@ -409,6 +425,7 @@
 				699743D718B1BE9E00005202 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		699743D818B1BE9E00005202 /* Build configuration list for PBXNativeTarget "XCTestAsyncTests" */ = {
 			isa = XCConfigurationList;
@@ -417,6 +434,7 @@
 				699743DA18B1BE9E00005202 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
