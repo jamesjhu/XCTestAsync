@@ -13,19 +13,19 @@ There are currently two ways to add XCTestAsync to your project:
 [CocoaPods](http://cocoapods.org) is a dependency manager for Objective-C. To include XCTestAsync into your project with CocoaPods, edit your project's `podfile` as follows:
 <pre>
 target :test, :exclusive => true do
-    pod 'SenTestingKitAsync', '~> 1.0'
+    pod 'XCTestAsync', '~> 1.0'
 end</pre>
 
 ### Manually
 
-If you are not using CocoaPods, you can copy over `XCTeatAsync.h` and `XCTestAsync.m` into your test target. In addition, you will need to add `-ObjC` to your test target linker flags.
+If you are not using CocoaPods, you can copy over `XCTestAsync.h` and `XCTestAsync.m` into your test target. In addition, you will need to add `-ObjC` to your test target linker flags.
 
 ## Usage 
 
 To use XCTestAsync in your tests, do the following:
 
 1. Import the header:
-    <pre>#import &lt;XCTeatAsync/XCTeatAsync.h&gt;</pre>
+    <pre>#import &lt;XCTestAsync/XCTestAsync.h&gt;</pre>
 
 2. Add your test method that ends with the suffix `Async`:
     <pre>- (void)testMethodAsync
@@ -48,4 +48,4 @@ If you expect your async test to run within a specified amount of time, you can 
 
 ## Additional Reading
 
-* [Testing Concurrent Applications](http://www.objc.io/issue-2/async-testing.html) - Written for SenTestingKitAsync but applies to XCTestAsync as well.
+* [Testing Concurrent Applications](http://www.objc.io/issue-2/async-testing.html) - Written for [SenTestingKitAsync](https://github.com/nxtbgthng/SenTestingKitAsync) but applies to XCTestAsync as well.
