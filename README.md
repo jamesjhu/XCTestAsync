@@ -40,7 +40,7 @@ To use XCTestAsync in your tests, do the following:
         XCAsyncSuccess();
     });</pre>
 
-Once your async tests start XCTestAsync will wait until either a failure occurs (by calling assertions such as `XCTFail(…)` or `XCTAssert(…)`) or a success is signalled (by calling `XCAsyncSuccess()`). If neither of these functions are called, XCTestAsync will wait forever.
+Once your async tests start, XCTestAsync will wait until either a failure occurs (by calling assertions such as `XCTFail(…)` or `XCTAssert(…)`) or a success is signalled (by calling `XCAsyncSuccess()`). If neither of these happen, XCTestAsync will wait indefinitely.
 
 ### Timeouts
 
