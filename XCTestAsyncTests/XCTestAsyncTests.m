@@ -10,7 +10,10 @@
 #import "XCTestAsync.h"
 
 @interface XCTestAsyncTests : XCTestCase
-
+@property BOOL asyncSetUpRan;
+@property BOOL asyncTearDownRan;
+@property BOOL setUpRan;
+@property BOOL tearDownRan;
 @end
 
 @implementation XCTestAsyncTests
@@ -18,14 +21,39 @@
 - (void)setUp
 {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    self.setUpRan = YES;
+}
+
+- (void)setUpAsyncWithCompletionHandler:(XCAsyncCompletionBlock)handler
+{
+    __weak XCTestAsyncTests *weak = self;
+    [super setUpAsyncWithCompletionHandler:^{
+        weak.asyncSetUpRan = YES;
+        handler();
+    }];
+}
+
+- (void)tearDownAsyncWithCompletionHandler:(XCAsyncCompletionBlock)handler
+{
+    __weak XCTestAsyncTests *weak = self;
+    [super tearDownAsyncWithCompletionHandler:^{
+        weak.asyncTearDownRan = YES;
+        handler();
+    }];
 }
 
 - (void)tearDown
 {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
+    self.tearDownRan = YES;
+    
+    NSAssert(self.setUpRan, @"setup did not run");
+    NSAssert(self.asyncSetUpRan, @"async setup did not run");
+    NSAssert(self.tearDownRan, @"tear down did not run");
+    NSAssert(self.asyncTearDownRan, @"async teardown did not run");
 }
+
+#pragma mark - Tests
 
 - (void)testTimeoutAsync
 {
@@ -35,5 +63,27 @@
         XCAsyncSuccess();
     });
 }
+
+- (void)testSetupsRunAsync {
+    XCTAssert(self.asyncSetUpRan, @"async setup did not run");
+    XCTAssert(self.setUpRan, @"sync setup did not run");
+    XCAsyncSuccess();
+}
+
+- (void)testAsyncSetupRunsForSyncTest {
+    XCTAssert(self.asyncSetUpRan, @"async setup did not run");
+    XCTAssert(self.setUpRan, @"sync setup did not run");
+}
+
+//- (void)testFails {
+//    XCTFail(@"expected");
+//}
+//
+//- (void)testFailsAsync {
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
+//        XCTFail(@"expected");
+//        XCAsyncSuccess();
+//    });
+//}
 
 @end
