@@ -1,5 +1,10 @@
 # XCTestAsync
 
+## Deprecated
+As of Xcode 6, Apple has created a first-party solution to writing asynchronous tests. See [Testing with Xcode](https://developer.apple.com/library/prerelease/ios/documentation/DeveloperTools/Conceptual/testing_with_xcode/testing_3_writing_test_classes/testing_3_writing_test_classes.html#//apple_ref/doc/uid/TP40014132-CH4-SW6)
+
+## Overview
+
 XCTestAsync is an extension to XCTest for asynchronous testing, and is based on [SenTestingKitAsync](https://github.com/nxtbgthng/SenTestingKitAsync).
 
 ## Installation
