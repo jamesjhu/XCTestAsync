@@ -54,6 +54,35 @@ typedef void(^XCTestCompletionHandler)(XCTestRun *run);
 + (void)tearDownTestObservers;
 @end
 
+@implementation XCTestCase (AsyncExtension)
+
+- (void)setUpAsyncWithCompletionHandler:(XCAsyncCompletionBlock)handler
+{
+    handler();
+}
+
+- (void)tearDownAsyncWithCompletionHandler:(XCAsyncCompletionBlock)handler
+{
+    handler();
+}
+
+@end
+
+@implementation XCTestSuite (AsyncExtension)
+
+//- (void)setUpAsyncWithCompletionHandler:(XCAsyncCompletionBlock)handler
+//{
+//    handler();
+//}
+//
+//- (void)tearDownAsyncWithCompletionHandler:(XCAsyncCompletionBlock)handler
+//{
+//    handler();
+//}
+
+@end
+
+
 @implementation XCTest (Async)
 
 - (void)runWithCompletionHandler:(XCTestCompletionHandler)aCompletionHandler
@@ -96,52 +125,63 @@ typedef void(^XCTestCompletionHandler)(XCTestRun *run);
 
 - (void)performTest:(XCTestRun *)aRun withCompletionHandler:(XCTestCompletionHandler)aCompletionHandler
 {
-    NSException *exception = nil;
+    __block NSException *exception = nil;
     
     [self setValue:aRun forKey:@"testCaseRun"];
-    [aRun start];
     
-    if ([NSStringFromSelector([self selector]) hasSuffix:@"Async"]) {
-        self.testRun = aRun;
-        self.completionHandler = aCompletionHandler;
+    __weak XCTestCase *weak = self;
+    [weak setUp];
+    [weak setUpAsyncWithCompletionHandler:^{
+        [aRun start];
         
-        @try {
-            // Call setup and invoke ourselves because we don't want invokeTest to call tearDown
-            [self setUp];
-            [[self invocation] invoke];
-        }
-        @catch (NSException *anException) {
-            exception = anException;
-        }
-        
-        if (exception) {
-            [self tearDown];
+        if ([NSStringFromSelector([weak selector]) hasSuffix:@"Async"]) {
+            weak.testRun = aRun;
+            weak.completionHandler = aCompletionHandler;
             
-            NSString *description = [NSString stringWithFormat:@"%@\n%@", [exception reason], [exception callStackSymbols]];
-            [self _recordUnexpectedFailureWithDescription:description exception:exception];
+            @try {
+                [[weak invocation] invoke];
+            }
+            @catch (NSException *anException) {
+                exception = anException;
+            }
             
+            if (exception) {
+                [aRun stop];
+                [weak tearDownAsyncWithCompletionHandler:^{
+                    [weak tearDown];
+                    
+                    NSString *description = [NSString stringWithFormat:@"%@\n%@", [exception reason], [exception callStackSymbols]];
+                    [weak _recordUnexpectedFailureWithDescription:description exception:exception];
+                    
+                    [weak setValue:nil forKey:@"testCaseRun"];
+                    weak.testRun = nil;
+                    weak.completionHandler = nil;
+                    aCompletionHandler(aRun);
+                }];
+            }
+        } else {
+            @try {
+                [[weak invocation] invoke];
+            }
+            @catch (NSException *anException) {
+                exception = anException;
+            }
+
             [aRun stop];
-            [self setValue:nil forKey:@"testCaseRun"];
-            self.testRun = nil;
-            self.completionHandler = nil;
-            aCompletionHandler(aRun);
-        }
-    } else {
-        @try {
-            [self invokeTest];
-        }
-        @catch (NSException *anException) {
-            exception = anException;
+            [weak tearDownAsyncWithCompletionHandler:^{
+                [weak tearDown];
+                if (exception) {
+                    NSString *description = [NSString stringWithFormat:@"%@\n%@", [exception reason], [exception callStackSymbols]];
+                    [self _recordUnexpectedFailureWithDescription:description exception:exception];
+                }
+                
+                [self setValue:nil forKey:@"testCaseRun"];
+                aCompletionHandler(aRun);
+            }];
         }
         
-        if (exception) {
-            NSString *description = [NSString stringWithFormat:@"%@\n%@", [exception reason], [exception callStackSymbols]];
-            [self _recordUnexpectedFailureWithDescription:description exception:exception];
-        }
-        [aRun stop];
-        [self setValue:nil forKey:@"testCaseRun"];
-        aCompletionHandler(aRun);
-    }
+    }];
+
 }
 
 - (void)async_recordFailureWithDescription:(NSString *)description inFile:(NSString *)filename atLine:(NSUInteger)lineNumber expected:(BOOL)expected
@@ -151,20 +191,23 @@ typedef void(^XCTestCompletionHandler)(XCTestRun *run);
             [self sync_recordFailureWithDescription:description inFile:filename atLine:lineNumber expected:expected];
         }
     } else {
+        __weak XCTestCase *weak = self;
         XCTestCompletionHandler aCompletionHandler = self.completionHandler;
         self.completionHandler = nil;
         dispatch_async(dispatch_get_main_queue(), ^{
-            XCTestRun *aRun = self.testRun;
-            self.testRun = nil;
+            XCTestRun *aRun = weak.testRun;
+            weak.testRun = nil;
             
             if (![XCAsyncSuccessDescription isEqualToString:description]) {
                 [self sync_recordFailureWithDescription:description inFile:filename atLine:lineNumber expected:expected];
             }
             
-            [self tearDown];
-            [aRun stop];
-            [self setValue:nil forKey:@"testCaseRun"];
-            aCompletionHandler(aRun);
+            [self tearDownAsyncWithCompletionHandler:^{
+                [weak tearDown];
+                [aRun stop];
+                [weak setValue:nil forKey:@"testCaseRun"];
+                aCompletionHandler(aRun);
+            }];
         });
     }
 }
@@ -195,7 +238,8 @@ typedef void(^XCTestCompletionHandler)(XCTestRun *run);
 
 - (void)performTest:(XCTestRun *)aTestRun withCompletionHandler:(XCTestCompletionHandler)aCompletionHandler
 {
-    [self setUp];
+    __weak XCTestSuite *weak = self;
+    [weak setUp];
     [aTestRun start];
     
     NSEnumerator *testEnumerator = [[self tests] objectEnumerator];
@@ -209,19 +253,19 @@ typedef void(^XCTestCompletionHandler)(XCTestRun *run);
     withTestEnumerator:(NSEnumerator *)aTestEnumerator
      completionHandler:(XCTestCompletionHandler)aCompletionHandler
 {
+    __weak XCTestSuite *weak = self;
     XCTest *aTest = [aTestEnumerator nextObject];
     
     if (aTest) {
         [aTest runWithCompletionHandler:^(XCTestRun *run) {
             [(XCTestSuiteRun *)aTestRun addTestRun:run];
-            [self performTestRun:aTestRun
+            [weak performTestRun:aTestRun
               withTestEnumerator:aTestEnumerator
                completionHandler:aCompletionHandler];
         }];
     } else {
         [aTestRun stop];
         [self tearDown];
-        
         aCompletionHandler(aTestRun);
     }
 }

@@ -51,6 +51,31 @@ Once your async tests start, XCTestAsync will wait until either a failure occurs
 
 If you expect your async test to run within a specified amount of time, you can specify a time limit by calling `XCAsyncFailAfter(timeout, description, …)`. If a success is not signalled within the time limit, the test will fail after `timeout` number of seconds.
 
+## Asynchronous set up and tear down of test cases
+
+If the setup needed by you test is also handled asynchronous, you can now do this with the extension to XCTestCase. Simply implement `-[XCTestCase setUpAsyncWithCompletionHandler:]` or `-[XCTestCase tearDownAsyncWithCompletionHandler:]` in you test case and do the setup (or tear down). If you are done with that, call the completion handler (and do not forget to call the setup or tear down of super).
+
+```
+- (void)setUpAsyncWithCompletionHandler:(XCAsyncCompletionBlock)handler
+{
+    [super setUpAsyncWithCompletionHandler:^{
+        // Your set up
+        handler();
+    }];
+}
+
+- (void)tearDownAsyncWithCompletionHandler:(XCAsyncCompletionBlock)handler
+{
+    [super tearDownAsyncWithCompletionHandler:^{
+        // Your tear down
+        handler();
+    }];
+}
+```
+
+Because there is no timeout or error catching, you have to be sure, that your implementation that is used for set up and tear down is well tested. In case of an error exit the test with an assertion. 
+
+
 ## Additional Reading
 
 * [Testing Concurrent Applications](http://www.objc.io/issue-2/async-testing.html) - Written for [SenTestingKitAsync](https://github.com/nxtbgthng/SenTestingKitAsync) but applies to XCTestAsync as well.

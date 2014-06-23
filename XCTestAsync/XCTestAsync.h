@@ -25,3 +25,10 @@ do { \
 ({ \
     _XCTRegisterFailure(@"timed out",format); \
 })
+
+typedef void (^XCAsyncCompletionBlock)();
+
+@interface XCTestCase (AsyncExtension)
+- (void)setUpAsyncWithCompletionHandler:(XCAsyncCompletionBlock)handler;
+- (void)tearDownAsyncWithCompletionHandler:(XCAsyncCompletionBlock)handler;
+@end
